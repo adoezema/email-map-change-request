@@ -31,8 +31,7 @@ if __name__ == "__main__":
             try:
                 gis = login(info['user'], info['password'])
                 log.info(f'[ACCESS ACCOUNT] Logged into {org} as: {gis.users.me.username}')
-                #TODO Need to narrow down, returns other results.
-                content = search_content(gis, '*Map Change *')
+                content = search_content(gis, '*Map Change Request*')
                 if content:
                     log.info(f'[SEARCH] Found {content}')
 
