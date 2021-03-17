@@ -1,12 +1,14 @@
 import logging
 import yaml
 from arcgis.gis import GIS, Item
+from arcgis.features import FeatureLayer, FeatureLayerCollection
 from yaml.loader import SafeLoader
 from pathlib import Path
-from typing import List
+from typing import List, Dict
 from rich.logging import RichHandler
 
-logging.basicConfig(level="INFO", format='%(asctime)s - [%(levelname)s] - %(message)s',
+
+logging.basicConfig(level="INFO", format='%(asctime)s - %(message)s',
                         datefmt='[%X]', handlers=[RichHandler(rich_tracebacks=True)])
 log = logging.getLogger('rich')
 
@@ -18,9 +20,19 @@ def search_content(gis, wild_card_title, item_type='Feature Service') -> List[It
     query = "title:" + wild_card_title
     result = gis.content.search(query=query, item_type=item_type)
     if result:
-        return result
+        return [i for i in result if i.content_status != 'deprecated']
     else:
         log.warning(f'No Match found')
+        
+def find_open_issues(agol_item) -> List[Dict]:
+    feat_lyr_col: FeatureLayerCollection = FeatureLayerCollection.fromitem(agol_item)
+    field_mapping = {'Update_Status': 'New',
+                        'STATUS': 'Open'}
+    for feat_lyr in feat_lyr_col.layers:
+        log.info(f'Layer: {feat_lyr}')
+        print([fld.name for fld in feat_lyr.properties.fields if fld.name in field_mapping.keys()])
+        #TODO: query feature layer using try/except with field_mapping dict
+
 
 if __name__ == "__main__":
     parent = Path(r'C:\Users\adoezema\PycharmProjects\ArcGIS_Online_Admin\email-map-change-request')
@@ -34,6 +46,8 @@ if __name__ == "__main__":
                 content = search_content(gis, '*Map Change Request*')
                 if content:
                     log.info(f'[SEARCH] Found {content}')
+                    for item in content:
+                        find_open_issues(item)
 
             except Exception as e:
                 log.exception(e)
