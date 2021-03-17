@@ -22,7 +22,7 @@ def search_content(gis, wild_card_title, item_type='Feature Service') -> List[It
     if result:
         return [i for i in result if i.content_status != 'deprecated']
     else:
-        log.warning(f'No Match found')
+        log.warning(f'No Map Change Request Feature Service found')
         
 def find_open_issues(agol_item) -> List[Dict]:
     results = []
@@ -30,13 +30,16 @@ def find_open_issues(agol_item) -> List[Dict]:
     field_mapping = {'Update_Status': 'New',
                         'STATUS': 'Open'}
     for feat_lyr in feat_lyr_col.layers:
-        log.info(f'Layer: {feat_lyr}')
+        log.info(f'Item: {agol_item.title} Layer: {feat_lyr}')
+        field_names = [fld.name for fld in feat_lyr.properties.fields]
         log.debug([fld.name for fld in feat_lyr.properties.fields])
+        if not any(fld in field_names for fld in field_mapping.keys()):
+            raise Exception(f'Fields {field_mapping.keys()} not found in {agol_item.title} - Layer: {feat_lyr.properties.name}')
         for name, status in field_mapping.items():
             try:           
                 count = feat_lyr.query(where=f"{name}='{status}'", return_count_only=True)
                 log.info(f'[QUERY] - {count} Open Issues')
-                results.append({'Layer': feat_lyr.properties.name, 'Count': count})
+                results.append({'Feature Service': agol_item.title, 'Layer': feat_lyr.properties.name, 'Count': count})
             except Exception:
                 log.warning(f'Field: {name} not in {feat_lyr.properties.name}')
     return results
@@ -59,5 +62,4 @@ if __name__ == "__main__":
                         open_map_change_requests.append({org: open_issues})
             except Exception as e:
                 log.exception(e)
-        print(open_map_change_requests)
-    
+        log.info(open_map_change_requests)
