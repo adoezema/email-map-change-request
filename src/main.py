@@ -1,4 +1,5 @@
 import logging
+import pandas as pd
 import yaml
 from arcgis.gis import GIS, Item
 from arcgis.features import FeatureLayer, FeatureLayerCollection
@@ -44,6 +45,18 @@ def find_open_issues(agol_item) -> List[Dict]:
                 log.warning(f'Field: {name} not in {feat_lyr.properties.name}')
     return results
 
+def convert_to_df(data) -> pd.DataFrame:
+    result = pd.DataFrame()
+    for community in data:
+        name = list(community.keys())[0]
+        #TODO: Log empty DataFrame Communities?
+        community_df = pd.DataFrame(community[name])
+        community_df['Community Name'] = name
+        result = result.append(community_df, ignore_index=True)
+    
+    return result
+
+
 if __name__ == "__main__":
     parent = Path(r'C:\Users\adoezema\PycharmProjects\ArcGIS_Online_Admin\email-map-change-request')
     file_loc = r'settings\account_info.yaml'
@@ -62,4 +75,5 @@ if __name__ == "__main__":
                         open_map_change_requests.append({org: open_issues})
             except Exception as e:
                 log.exception(e)
-        log.info(open_map_change_requests)
+    log.info(open_map_change_requests)
+    
