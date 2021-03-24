@@ -3,6 +3,7 @@ import pandas as pd
 import yaml
 from arcgis.gis import GIS, Item
 from arcgis.features import FeatureLayer, FeatureLayerCollection
+from datetime import datetime
 from yaml.loader import SafeLoader
 from pathlib import Path
 from typing import List, Dict
@@ -77,3 +78,8 @@ if __name__ == "__main__":
                 log.exception(e)
     log.info(open_map_change_requests)
     
+    data_df = convert_to_df(open_map_change_requests)
+    html_tbl = data_df.to_html()
+    data_dir = Path.joinpath(Path(__file__).resolve().parents[1], 'data').absolute()
+    log.info(f'[FILE] Creating new excel table in {data_dir}')
+    excel_tbl = data_df.to_excel(Path.joinpath(data_dir,f"c{datetime.now().strftime('%Y%m%d')}_Open_Map_Change_Requests.xlsx"))
