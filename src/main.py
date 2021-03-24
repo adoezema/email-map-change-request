@@ -83,6 +83,7 @@ if __name__ == "__main__":
     html_tbl = data_df.to_html()
     data_dir = Path.joinpath(Path(__file__).resolve().parents[1], 'data').absolute()
     log.info(f'[FILE] Creating new excel table in {data_dir}')
-    excel_tbl = data_df.to_excel(Path.joinpath(data_dir,f"c{datetime.now().strftime('%Y%m%d')}_Open_Map_Change_Requests.xlsx"))
+    excel_tbl = Path.joinpath(data_dir,f"c{datetime.now().strftime('%Y%m%d')}_Open_Map_Change_Requests.xlsx")
+    data_df.to_excel(excel_tbl)
 
-    email_report(['austin.doezema@ohm-advisors.com'], html_tbl)
+    email_report(['austin.doezema@ohm-advisors.com'], html_tbl, str(excel_tbl))
