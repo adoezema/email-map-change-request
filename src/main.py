@@ -10,6 +10,7 @@ from typing import List, Dict
 from rich.logging import RichHandler
 from email_users import email_report
 
+#TODO: Add Type Hints and Docstrings
 
 logging.basicConfig(level="INFO", format='%(asctime)s - %(message)s',
                         datefmt='[%X]', handlers=[RichHandler(rich_tracebacks=True)])
@@ -60,10 +61,9 @@ def convert_to_df(data) -> pd.DataFrame:
 
 
 if __name__ == "__main__":
-    parent = Path(r'C:\Users\adoezema\PycharmProjects\ArcGIS_Online_Admin\email-map-change-request')
-    file_loc = r'settings\account_info.yaml'
+    workspace = Path(__file__).resolve().parents[1]
     open_map_change_requests = []
-    with open(Path(parent, file_loc)) as file:
+    with open(Path.joinpath(workspace, 'settings', 'account_info.yaml')) as file:
         accounts = yaml.load(file, Loader=yaml.SafeLoader)
         for org, info in accounts.items():
             try:
@@ -81,9 +81,9 @@ if __name__ == "__main__":
     
     data_df = convert_to_df(open_map_change_requests)
     html_tbl = data_df.to_html()
-    data_dir = Path.joinpath(Path(__file__).resolve().parents[1], 'data').absolute()
+    data_dir = Path.joinpath(workspace, 'data').absolute()
     log.info(f'[FILE] Creating new excel table in {data_dir}')
     excel_tbl = Path.joinpath(data_dir,f"c{datetime.now().strftime('%Y%m%d')}_Open_Map_Change_Requests.xlsx")
     data_df.to_excel(excel_tbl)
 
-    email_report(['austin.doezema@ohm-advisors.com'], html_tbl, str(excel_tbl))
+    email_report(['austin.doezema@ohm-advisors.com'], html_tbl, str(excel_tbl), len(accounts))

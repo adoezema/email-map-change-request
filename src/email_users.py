@@ -9,12 +9,14 @@ from pathlib import Path
 from typing import List
 from rich.logging import RichHandler
 
+#TODO: Add Type Hints and Docstrings
+
 logging.basicConfig(level="INFO", format='%(asctime)s - %(message)s',
                         datefmt='[%X]', handlers=[RichHandler(rich_tracebacks=True)])
 log = logging.getLogger('rich')
 
 
-def email_report(recipients: List, html_table: str, attachment_path: str):
+def email_report(recipients: List, html_table: str, attachment_path: str, num_of_orgs: int):
     EMAIL_ADDRESS = os.environ.get('EMAIL_ADDRESS')
     EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD')
 
@@ -27,7 +29,7 @@ def email_report(recipients: List, html_table: str, attachment_path: str):
         <head></head>
         <body>
             <h3>This is an auto-generate email</h3>
-            <p>22 ArcGIS Online Accounts were scanned and processed. Below is a table of all open map change requests by community. Any 
+            <p>{num_of_orgs} ArcGIS Online Accounts were scanned and processed. Below is a table of all open map change requests by community. Any 
                 community not listed does not have any open map change request points.
             </p>
             {html_table}
