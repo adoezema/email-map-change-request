@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import List, Dict
 from rich.logging import RichHandler
 from email_users import email_report
+from settings import email_participants
 
 #TODO: Add Type Hints and Docstrings
 
@@ -61,7 +62,7 @@ def convert_to_df(data) -> pd.DataFrame:
 
 
 if __name__ == "__main__":
-    workspace = Path(__file__).resolve().parents[1]
+    workspace = Path(__file__).resolve().parents[0]
     open_map_change_requests = []
     with open(Path.joinpath(workspace, 'settings', 'account_info.yaml')) as file:
         accounts = yaml.load(file, Loader=yaml.SafeLoader)
@@ -86,4 +87,4 @@ if __name__ == "__main__":
     excel_tbl = Path.joinpath(data_dir,f"c{datetime.now().strftime('%Y%m%d')}_Open_Map_Change_Requests.xlsx")
     data_df.to_excel(excel_tbl)
 
-    email_report(['austin.doezema@ohm-advisors.com'], html_tbl, str(excel_tbl), len(accounts))
+    email_report(email_participants.users, html_tbl, str(excel_tbl), len(accounts))
